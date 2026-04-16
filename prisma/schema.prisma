@@ -1,0 +1,36 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
+  role     Role   @default(USER)
+  tasks    Task[] @relation("CreatedTasks")
+  assigned Task[] @relation("AssignedTasks")
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  status      String   @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED
+  priority    String   @default("MEDIUM")  // LOW, MEDIUM, HIGH
+  dueDate     DateTime
+  documents   String[] // We will store file paths here
+  userId      String
+  creator     User     @relation("CreatedTasks", fields: [userId], references: [id])
+  assignedTo  String?
+  assignee    User?    @relation("AssignedTasks", fields: [assignedTo], references: [id])
+}
