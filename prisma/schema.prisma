@@ -13,24 +13,20 @@ enum Role {
 }
 
 model User {
-  id       String @id @default(cuid())
-  email    String @unique
-  password String
-  role     Role   @default(USER)
-  tasks    Task[] @relation("CreatedTasks")
-  assigned Task[] @relation("AssignedTasks")
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      String   @default("user")
+  tasks     Task[]   // This links the user to their tasks
 }
 
 model Task {
   id          String   @id @default(cuid())
   title       String
-  description String
-  status      String   @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED
-  priority    String   @default("MEDIUM")  // LOW, MEDIUM, HIGH
-  dueDate     DateTime
-  documents   String[] // We will store file paths here
+  description String?
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   userId      String
-  creator     User     @relation("CreatedTasks", fields: [userId], references: [id])
-  assignedTo  String?
-  assignee    User?    @relation("AssignedTasks", fields: [assignedTo], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
 }
